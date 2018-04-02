@@ -16,7 +16,7 @@
 <meta property="og:site_name" content="Hexo">
 <meta property="og:description" content="一. 简介&amp;emsp;&amp;emsp;哈希表（hash table）也叫散列表，是一种非常重要的数据结构，应用场景及其丰富，许多缓存技术（比如memcached）的核心其实就是在内存中维护一张大的哈希表，而HashMap的实现原理也常常出现在各类的面试题中，重要性可见一斑。本文会对java集合框架中的对应实现HashMap的实现原理进行讲解，然后会对JDK8的HashMap源码进行分析。。 二. 正文">
 <meta property="og:image" content="http://p657ki7rg.bkt.clouddn.com/hashmap.jpg">
-<meta property="og:updated_time" content="2018-04-02T15:06:05.037Z">
+<meta property="og:updated_time" content="2018-04-02T15:07:36.650Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="HashMap的实现原理及源码分析（一）">
 <meta name="twitter:description" content="一. 简介&amp;emsp;&amp;emsp;哈希表（hash table）也叫散列表，是一种非常重要的数据结构，应用场景及其丰富，许多缓存技术（比如memcached）的核心其实就是在内存中维护一张大的哈希表，而HashMap的实现原理也常常出现在各类的面试题中，重要性可见一斑。本文会对java集合框架中的对应实现HashMap的实现原理进行讲解，然后会对JDK8的HashMap源码进行分析。。 二. 正文">
@@ -141,14 +141,14 @@
     <div class="article-entry post-content" itemprop="articleBody">
       
             
-            <h3 id="一-简介"><a href="#一-简介" class="headerlink" title="一. 简介"></a>一. 简介</h3><p>&emsp;&emsp;<code>哈希表</code>（hash table）也叫散列表，是一种非常重要的<code>数据结构</code>，应用场景及其丰富，许多缓存技术（比如memcached）的核心<br>其实就是在内存中维护一张大的哈希表，而HashMap的实现原理也常常出现在各类的面试题中，重要性可见一斑。本文会对java集合框架中的对应实现HashMap<br>的实现原理进行讲解，然后会对JDK8的HashMap源码进行分析。。</p>
+            <h3 id="一-简介"><a href="#一-简介" class="headerlink" title="一. 简介"></a>一. 简介</h3><p>&emsp;&emsp;<code>哈希表</code>（hash table）也叫散列表，是一种非常重要的<code>数据结构</code>，应用场景及其丰富，许多缓存技术（比如memcached）的核心其实就是在内存中维护一张大的哈希表，而HashMap的实现原理也常常出现在各类的面试题中，重要性可见一斑。本文会对java集合框架中的对应实现HashMap的实现原理进行讲解，然后会对JDK8的HashMap源码进行分析。。</p>
 <h3 id="二-正文"><a href="#二-正文" class="headerlink" title="二. 正文"></a>二. 正文</h3><h4 id="2-1-什么是哈希表"><a href="#2-1-什么是哈希表" class="headerlink" title="2.1 什么是哈希表"></a>2.1 什么是哈希表</h4><p>&emsp;&emsp;在讨论哈希表之前，我们先大概了解下其他数据结构在新增，查找等基础操作执行性能<br>&emsp;&emsp;<code>数组</code>：采用一段连续的存储单元来存储数据。对于指定下标的查找，时间复杂度为O(1)；通过给定值进行查找，需要遍历数组，<br>逐一比对给定关键字和数组元素，时间复杂度为O(n)，当然，对于有序数组，则可采用二分查找，插值查找，斐波那契查找等方式，可将查找复杂度提高为O(logn)；对于一般的插入删除操作，涉及到数组元素的移动，其平均复杂度也为O(n)<br>&emsp;&emsp;<code>线性链表</code>：对于链表的新增，删除等操作（在找到指定操作位置后），仅需处理结点间的引用即可，时间复杂度为O(1)，而查找操作需要遍历<br>链表逐一进行比对，复杂度为O(n)<br>&emsp;&emsp;<code>二叉树</code>：对一棵相对平衡的有序二叉树，对其进行插入，查找，删除等操作，平均复杂度均为O(logn)。<br>&emsp;&emsp;<code>哈希表</code>：相比上述几种数据结构，在哈希表中进行添加，删除，查找等操作，性能十分之高，不考虑哈希冲突的情况下，仅需一次定位即可完成，<br>时间复杂度为O(1)，接下来我们就来看看哈希表是如何实现达到惊艳的常数阶O(1)的。<br>&emsp;&emsp;我们知道，数据结构的物理存储结构只有两种：顺序存储结构和链式存储结构，在数组中根据下标查找某个元素，一次定位就可以达到，哈希表利用了这种特性，哈希表的主干就是数组。<br>&emsp;&emsp;比如我们要新增或查找某个元素，通过把当前元素的关键字，通过某个函数映射到数组中的某个位置，通过数组下标一次定位就可完成操作。<br>这个函数一般称为哈希函数，这个函数的设计好坏会直接影响到哈希表的优劣。</p>
 <h4 id="2-2-哈希冲突"><a href="#2-2-哈希冲突" class="headerlink" title="2.2 哈希冲突"></a>2.2 哈希冲突</h4><p>&emsp;&emsp;然而万事无完美，如果两个不同的元素，通过哈希函数得出的实际存储地址相同怎么办？也就是说，当我们对某个元素进行哈希运算，得到一个存储地址，然后要进行插入的时候，<br>发现已经被其他元素占用了，其实这就是所谓的哈希冲突，也叫哈希碰撞。前面我们提到过，哈希函数的设计至关重要，好的哈希函数会尽可能地保证 计算简单和<br>散列地址分布均匀,但是，我们需要清楚的是，数组是一块连续的固定长度的内存空间，再好的哈希函数也不能保证得到的存储地址绝对不发生冲突。那么哈希冲突如何解决呢？<br>哈希冲突的解决方案有多种:开放定址法（发生冲突，继续寻找下一块未被占用的存储地址），再散列函数法，链地址法，而HashMap即是采用了链地址法，也就是数组+链表的方式，</p>
 <h4 id="2-3-HashMap的结构图"><a href="#2-3-HashMap的结构图" class="headerlink" title="2.3 HashMap的结构图"></a>2.3 HashMap的结构图</h4><p><img src="http://p657ki7rg.bkt.clouddn.com/hashmap.jpg" alt="结构图"></p>
 
             <div class="post-copyright">
     <div class="content">
-        <p>最后更新： 2018年04月02日 23:06</p>
+        <p>最后更新： 2018年04月02日 23:07</p>
         <p>原始链接： <a class="post-url" href="/2018/04/03/hashmap/" title="HashMap的实现原理及源码分析（一）">http://yoursite.com/2018/04/03/hashmap/</a></p>
         <footer>
             <a href="http://yoursite.com">
