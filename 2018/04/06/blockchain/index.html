@@ -22,7 +22,7 @@
 <meta property="og:image" content="http://p657ki7rg.bkt.clouddn.com/123.PNG">
 <meta property="og:image" content="http://p657ki7rg.bkt.clouddn.com/3456.PNG">
 <meta property="og:image" content="http://p657ki7rg.bkt.clouddn.com/9090.PNG">
-<meta property="og:updated_time" content="2018-04-06T12:44:31.740Z">
+<meta property="og:updated_time" content="2018-04-06T12:46:52.548Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="区块链入门教程">
 <meta name="twitter:description" content="一. 引言&amp;emsp;&amp;emsp;区块链技术被认为是继蒸汽机、电力、互联网之后，下一代颠覆性的核心技术。 如果说蒸汽机释放了人们的生产力，电力解决了人们基本的生活需求，互联网彻底改变了信息传递的方式，那么区块链作为构造信任的机器，将可能彻底改变整个人类社会价值传递的方式&amp;emsp;&amp;emsp;最近区块链技术被炒的火热，尤其是以区块链为底层技术和架构的比特币,很多科技巨头和银行都在布局区块链，小米">
@@ -163,7 +163,7 @@
 <h4 id="2-4-什么是去中心化"><a href="#2-4-什么是去中心化" class="headerlink" title="2.4 什么是去中心化"></a>2.4 什么是去中心化</h4><p>&emsp;&emsp;先来考虑一个中心化集中式处理的过程。你要在某宝上买一个商品，交易流程是：你将钱打给支付宝－支付宝收款后通知卖家发货－卖家发货－你确认收货－支付宝把钱打给卖家<br><img src="http://p657ki7rg.bkt.clouddn.com/centerpay.jpg" alt="pay"><br>&emsp;&emsp;在这个过程中，虽然你是在和卖家交易，但是这笔交易还牵扯到了除了你和卖家的第三方，即支付宝，你和卖家的交易都是围绕支付宝展开。因此，如果支付宝系统出了问题或者极端情况支付宝跑路了便会造成这笔交易的失败。并且虽然你只是简单的买了一个商品，但是你和卖家都要向第三方提供多余的信息<br>&emsp;&emsp;去中心化是区块链技术的颠覆性特点，它无需中心化代理，实现了一种点对点的直接交互，使得高效率、大规模、无中心化代理的信息交互方式成为了现实<br>&emsp;&emsp;读到这，可能会有人问，没有了权威的中心化代理，怎样保证每笔交易的准确性和有效性呢？比如：我和房地产公司签了一份合同，但是日后房地产厂商不承认怎么办？区块链这种技术都能解决上面的问题，那么我们就要探讨一下区块链技术的简单模型</p>
 <h4 id="2-5-区块链的数据结构"><a href="#2-5-区块链的数据结构" class="headerlink" title="2.5 区块链的数据结构"></a>2.5 区块链的数据结构</h4><p>&emsp;&emsp;学过数据结构课程的同学都知道，区块链的数据结构其实很简单，就是<strong>链表</strong>，并且存储了数据块<br>&emsp;&emsp;区块链由一个个区块（block）组成。区块很像数据库的记录，每次写入数据，就是创建一个区块<br>&emsp;&emsp;每个区块包含两个部分<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">区块头（Head）：记录当前区块的特征值</span><br><span class="line">区块体（Body）：实际数据</span><br></pre></td></tr></table></figure></p>
 <p>&emsp;&emsp;区块头包含了当前区块的多项特征值<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">生成时间</span><br><span class="line">实际数据（即区块体）的哈希</span><br><span class="line">上一个区块的哈希</span><br></pre></td></tr></table></figure></p>
-<p>&emsp;&emsp;这里，你需要理解什么叫<a href="https://baike.baidu.com/item/Hash/390310?fr=aladdin" target="_blank" rel="noopener">哈希</a>（hash），这是理解区块链必需的<br><img src="http://p657ki7rg.bkt.clouddn.com/2323.jpg" alt="con"><br>&emsp;&emsp;简单的来说，如果不考虑哈希碰撞，那么任意输入一组数据，通过hash函数得到一个固定长度的数值，就是求出了这个数据的hash值，这个hash值有什么作用呢？就是数据的唯一性，不可伪造，用来作为数据的身份标识<br>&emsp;&emsp;由此，可以得出两个重要推论<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">1. 每个区块的哈希都是不一样的，可以通过哈希标识区块</span><br><span class="line">2. 如果区块的内容变了，它的哈希一定会改变</span><br></pre></td></tr></table></figure></p>
+<p>&emsp;&emsp;这里，你需要理解什么叫<a href="https://baike.baidu.com/item/Hash/390310?fr=aladdin" target="_blank" rel="noopener">哈希</a>（hash），这是理解区块链必需的<br><img src="http://p657ki7rg.bkt.clouddn.com/2323.jpg" alt="con"><br>&emsp;&emsp;简单的来说，如果不考虑哈希碰撞，那么任意输入一组数据，通过hash函数得到一个固定长度的数值，就是求出了这个数据的hash值，这个hash值有什么作用呢？就是数据的唯一性，不可伪造，用来作为数据的身份标识<br>&emsp;&emsp;由此，可以得出两个重要推论<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">每个区块的哈希都是不一样的，可以通过哈希标识区块</span><br><span class="line">如果区块的内容变了，它的哈希一定会改变</span><br></pre></td></tr></table></figure></p>
 <h4 id="2-6-区块链的不可修改性"><a href="#2-6-区块链的不可修改性" class="headerlink" title="2.6 区块链的不可修改性"></a>2.6 区块链的不可修改性</h4><p>&emsp;&emsp;区块与hash是一一对应的，每个区块的哈希都是针对”区块头”（Head）计算的。也就是说，把区块头的各项特征值，按照顺序连接在一起，组成一个很长的字符串，再对这个字符串计算哈希</p>
 <blockquote>
 <p><strong>Hash = SHA256(区块头)</strong> </p>
@@ -175,7 +175,7 @@
 
             <div class="post-copyright">
     <div class="content">
-        <p>最后更新： 2018年04月06日 20:44</p>
+        <p>最后更新： 2018年04月06日 20:46</p>
         <p>原始链接： <a class="post-url" href="/2018/04/06/blockchain/" title="区块链入门教程">http://yoursite.com/2018/04/06/blockchain/</a></p>
         <footer>
             <a href="http://yoursite.com">
