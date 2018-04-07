@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   
-  <title>HashMap的实现原理及源码分析（一） | Hexo</title>
+  <title>HashMap的实现原理及源码分析（一） | Emind&#39;s Blog</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   
     <meta name="keywords" content="Emind,Emind's Blog" />
@@ -12,8 +12,8 @@
 <meta name="keywords" content="Java,HashMap">
 <meta property="og:type" content="article">
 <meta property="og:title" content="HashMap的实现原理及源码分析（一）">
-<meta property="og:url" content="http://yoursite.com/2018/04/03/hashmap/index.html">
-<meta property="og:site_name" content="Hexo">
+<meta property="og:url" content="http://chuancw.com/2018/04/03/hashmap/index.html">
+<meta property="og:site_name" content="Emind&#39;s Blog">
 <meta property="og:description" content="一. 简介&amp;emsp;&amp;emsp;哈希表（hash table）也叫散列表，是一种非常重要的数据结构，应用场景及其丰富，许多缓存技术（比如memcached）的核心其实就是在内存中维护一张大的哈希表，而HashMap的实现原理也常常出现在各类的面试题中，重要性可见一斑。&amp;emsp;&amp;emsp;本文会对java集合框架中的对应实现HashMap的实现原理进行讲解，然后会对JDK8的HashMap源码">
 <meta property="og:image" content="http://p657ki7rg.bkt.clouddn.com/hashmap.jpg">
 <meta property="og:updated_time" content="2018-04-02T15:14:49.927Z">
@@ -149,9 +149,9 @@
             <div class="post-copyright">
     <div class="content">
         <p>最后更新： 2018年04月02日 23:14</p>
-        <!-- <p>原始链接： <a class="post-url" href="/2018/04/03/hashmap/" title="HashMap的实现原理及源码分析（一）">http://yoursite.com/2018/04/03/hashmap/</a></p>-->
+        <!-- <p>原始链接： <a class="post-url" href="/2018/04/03/hashmap/" title="HashMap的实现原理及源码分析（一）">http://chuancw.com/2018/04/03/hashmap/</a></p>-->
         <footer>
-         <a href="http://yoursite.com">
+         <a href="http://chuancw.com">
                 <img src="/images/logo.png" alt="chuan">
                 chuan
             </a> 
@@ -206,7 +206,7 @@
     <div class="post-share-list" id="share-list">
         <ul class="share-icons">
           <li>
-            <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=http://yoursite.com/2018/04/03/hashmap/&title=《HashMap的实现原理及源码分析（一）》 — Hexo&pic=http://p657ki7rg.bkt.clouddn.com/java.jpg" data-title="微博">
+            <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=http://chuancw.com/2018/04/03/hashmap/&title=《HashMap的实现原理及源码分析（一）》 — Emind's Blog&pic=http://p657ki7rg.bkt.clouddn.com/java.jpg" data-title="微博">
               <i class="fa fa-weibo"></i>
             </a>
           </li>
@@ -216,22 +216,22 @@
             </a>
           </li>
           <li>
-            <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=http://yoursite.com/2018/04/03/hashmap/&title=《HashMap的实现原理及源码分析（一）》 — Hexo&source=技术博客" data-title="QQ">
+            <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=http://chuancw.com/2018/04/03/hashmap/&title=《HashMap的实现原理及源码分析（一）》 — Emind's Blog&source=技术博客" data-title="QQ">
               <i class="fa fa-qq"></i>
             </a>
           </li>
           <li>
-            <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=http://yoursite.com/2018/04/03/hashmap/" data-title="Facebook">
+            <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=http://chuancw.com/2018/04/03/hashmap/" data-title="Facebook">
               <i class="fa fa-facebook"></i>
             </a>
           </li>
           <li>
-            <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《HashMap的实现原理及源码分析（一）》 — Hexo&url=http://yoursite.com/2018/04/03/hashmap/&via=http://yoursite.com" data-title="Twitter">
+            <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《HashMap的实现原理及源码分析（一）》 — Emind's Blog&url=http://chuancw.com/2018/04/03/hashmap/&via=http://chuancw.com" data-title="Twitter">
               <i class="fa fa-twitter"></i>
             </a>
           </li>
           <li>
-            <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=http://yoursite.com/2018/04/03/hashmap/" data-title="Google+">
+            <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=http://chuancw.com/2018/04/03/hashmap/" data-title="Google+">
               <i class="fa fa-google-plus"></i>
             </a>
           </li>
@@ -241,7 +241,7 @@
 <div class="post-modal wx-share" id="wxShare">
     <a class="close" href="javascript:;" id="wxShare-close">×</a>
     <p>扫一扫，分享到微信</p>
-    <img src="//api.qrserver.com/v1/create-qr-code/?data=http://yoursite.com/2018/04/03/hashmap/" alt="微信分享二维码">
+    <img src="//api.qrserver.com/v1/create-qr-code/?data=http://chuancw.com/2018/04/03/hashmap/" alt="微信分享二维码">
 </div>
 
 <div class="mask"></div>
@@ -319,7 +319,7 @@
 <script src="//cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
 <script>
   var mihoConfig = {
-      root: "http://yoursite.com",
+      root: "http://chuancw.com",
       animate: true,
       isHome: false,
       share: true,
