@@ -1935,7 +1935,7 @@ pre .javascript .function {
 }
 @media screen and (max-width: 760px) {
   #header {
-    height: 400px;
+    height: 300px;
   }
   #header-row {
     padding-top: 0;
@@ -1966,9 +1966,7 @@ pre .javascript .function {
     font-size: 1em;
     color: #999;
   }
-  #header-description {
-    display: none;
-  }
+  #header-description,
   .header-nav {
     margin: 0 auto;
   }
