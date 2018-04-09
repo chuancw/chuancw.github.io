@@ -1959,14 +1959,13 @@ pre .javascript .function {
   #header-info {
     display: none;
   }
-  #header-title {
-    display: none;
-  }
   #header-title h2 {
     font-size: 1em;
     color: #999;
   }
-  #header-description,
+  #header-description {
+    display: none;
+  }
   .header-nav {
     margin: 0 auto;
   }
