@@ -1957,7 +1957,7 @@ pre .javascript .function {
     -o-transform: scale(0.8);
   }
   #header-info {
-    left: 0;
+    display: none;
   }
   #header-title h2 {
     font-size: 1em;
