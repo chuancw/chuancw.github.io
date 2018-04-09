@@ -1958,7 +1958,7 @@ pre .javascript .function {
   }
   .header-info,
   #header-title {
-    display: none;
+    width: 20px;
   }
   .header-info h2,
   #header-title h2 {
