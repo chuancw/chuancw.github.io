@@ -1935,7 +1935,7 @@ pre .javascript .function {
 }
 @media screen and (max-width: 760px) {
   #header {
-    height: 300px;
+    height: 260px;
   }
   #header-row {
     padding-top: 0;
@@ -1987,13 +1987,12 @@ pre .javascript .function {
   .article {
     margin: 10px 10px;
   }
-  .article .article-img {
-    display: none;
-  }
+  .article .article-img,
   .article .article-entry,
   .article .article-feed {
     margin-left: 0;
   }
+  .article .article-img p,
   .article .article-entry p,
   .article .article-feed p {
     margin: 0;
