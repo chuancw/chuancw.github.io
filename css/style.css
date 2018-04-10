@@ -574,24 +574,24 @@ body {
   color: #666;
   letter-spacing: 5px;
 }
-.header-nav {
+#header-nav {
   cursor: pointer;
   margin: 8px 0;
 }
-.header-nav .social {
+#header-nav .social {
   text-align: center;
 }
-.header-nav .social a {
+#header-nav .social a {
   color: #696969;
   margin-right: 15px;
   -webkit-transition: 0.2s ease;
   transition: 0.2s ease;
   position: relative;
 }
-.header-nav .social a:hover {
+#header-nav .social a:hover {
   color: #0cc;
 }
-.header-nav .social a:hover:after {
+#header-nav .social a:hover:after {
   right: -50%;
   top: -41px;
   color: #fff;
@@ -607,7 +607,7 @@ body {
   box-shadow: 0 0 2px rgba(0,0,0,0.2);
   z-index: 10;
 }
-.header-nav .social a:hover:before {
+#header-nav .social a:hover:before {
   top: -17px;
   right: 8px;
   border: solid;
