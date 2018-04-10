@@ -554,7 +554,7 @@ body {
 #header-title,
 #header-description {
   font-weight: 100;
-  margin-top: 15px;
+  margin-top: 20px;
 }
 #header-title {
   color: #fff;
@@ -569,7 +569,7 @@ body {
   letter-spacing: 5px;
 }
 #header-description {
-  margin: 40px auto;
+  margin: 20px auto;
   padding: 10px 0;
   color: #666;
   letter-spacing: 5px;
