@@ -1959,7 +1959,7 @@ pre .javascript .function {
   #header-info {
     display: none;
   }
-  #header-title h2 {
+  #header-title h4 {
     font-size: 1em;
     color: #999;
   }
