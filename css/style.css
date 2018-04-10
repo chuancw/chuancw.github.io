@@ -1956,12 +1956,10 @@ pre .javascript .function {
     -webkit-transform: scale(0.8);
     -o-transform: scale(0.8);
   }
+  #header-info h2,
   #header-title h2 {
     font-size: 1em;
     color: #999;
-  }
-  #header-description {
-    display: none;
   }
   .header-nav {
     margin: 0 auto;
