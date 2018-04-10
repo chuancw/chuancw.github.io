@@ -569,14 +569,14 @@ body {
   letter-spacing: 5px;
 }
 #header-description {
-  margin: 30px auto;
+  margin: 20px auto;
   padding: 10px 0;
   color: #666;
   letter-spacing: 5px;
 }
 .header-nav {
   cursor: pointer;
-  margin: 8px 0;
+  margin: 20px 0;
 }
 .header-nav .social {
   text-align: center;
