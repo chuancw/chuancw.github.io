@@ -1966,7 +1966,7 @@ pre .javascript .function {
     color: #999;
   }
   #header-description,
-  .header-nav {
+  header-nav {
     margin: 0 auto;
   }
   #mobile-nav {
