@@ -554,7 +554,7 @@ body {
 #header-title,
 #header-description {
   font-weight: 100;
-  margin-top: 15px;
+  margin-top: 14px;
 }
 #header-title {
   color: #fff;
@@ -1962,7 +1962,7 @@ pre .javascript .function {
   }
   #header-description,
   .header-nav {
-    margin: 1 auto;
+    margin: 0 auto;
   }
   #mobile-nav {
     position: absolute;
