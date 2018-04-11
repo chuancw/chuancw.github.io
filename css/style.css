@@ -576,7 +576,7 @@ body {
 }
 .header-nav {
   cursor: pointer;
-  margin: 8px 0;
+  margin: 9px 0;
 }
 .header-nav .social {
   text-align: center;
@@ -1962,7 +1962,7 @@ pre .javascript .function {
   }
   #header-description,
   .header-nav {
-    margin: 2 auto;
+    margin: 3 auto;
   }
   #mobile-nav {
     position: absolute;
