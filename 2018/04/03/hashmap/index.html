@@ -3,21 +3,24 @@
 <head>
   <meta charset="utf-8">
   
-  <title>chuancw</title>
+  <title>HashMap的实现原理及源码分析（一） | chuancw</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   
     <meta name="keywords" content="Emind,Emind's Blog" />
   
-  <meta name="description" content="关于我从事服务端软件开发，主要开发语言 Java，熟悉 Spring、MyBatis 等主流框架；对 源码 情有独钟。 对前端、数据分析等技能有所了解。 热爱开源项目、热爱新技术、热爱新事物、最喜欢数学。 关于工作城市：西安单位：菊厂 关于学习近期学习方向：Spring-cloud，区块链 关于座右铭 The Harder You Work, The Luckier You Will Be.  关">
-<meta property="og:type" content="website">
-<meta property="og:title" content="chuancw">
-<meta property="og:url" content="http://chuancw.com/about/index.html">
+  <meta name="description" content="一. 简介&amp;emsp;&amp;emsp;哈希表（hash table）也叫散列表，是一种非常重要的数据结构，应用场景及其丰富，许多缓存技术（比如memcached）的核心其实就是在内存中维护一张大的哈希表，而HashMap的实现原理也常常出现在各类的面试题中，重要性可见一斑。&amp;emsp;&amp;emsp;本文会对java集合框架中的对应实现HashMap的实现原理进行讲解，然后会对JDK8的HashMap源码">
+<meta name="keywords" content="Java,HashMap">
+<meta property="og:type" content="article">
+<meta property="og:title" content="HashMap的实现原理及源码分析（一）">
+<meta property="og:url" content="http://chuancw.com/2018/04/03/hashmap/index.html">
 <meta property="og:site_name" content="chuancw">
-<meta property="og:description" content="关于我从事服务端软件开发，主要开发语言 Java，熟悉 Spring、MyBatis 等主流框架；对 源码 情有独钟。 对前端、数据分析等技能有所了解。 热爱开源项目、热爱新技术、热爱新事物、最喜欢数学。 关于工作城市：西安单位：菊厂 关于学习近期学习方向：Spring-cloud，区块链 关于座右铭 The Harder You Work, The Luckier You Will Be.  关">
-<meta property="og:updated_time" content="2018-04-02T15:17:37.847Z">
+<meta property="og:description" content="一. 简介&amp;emsp;&amp;emsp;哈希表（hash table）也叫散列表，是一种非常重要的数据结构，应用场景及其丰富，许多缓存技术（比如memcached）的核心其实就是在内存中维护一张大的哈希表，而HashMap的实现原理也常常出现在各类的面试题中，重要性可见一斑。&amp;emsp;&amp;emsp;本文会对java集合框架中的对应实现HashMap的实现原理进行讲解，然后会对JDK8的HashMap源码">
+<meta property="og:image" content="http://p657ki7rg.bkt.clouddn.com/hashmap.jpg">
+<meta property="og:updated_time" content="2018-04-02T15:14:49.927Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="chuancw">
-<meta name="twitter:description" content="关于我从事服务端软件开发，主要开发语言 Java，熟悉 Spring、MyBatis 等主流框架；对 源码 情有独钟。 对前端、数据分析等技能有所了解。 热爱开源项目、热爱新技术、热爱新事物、最喜欢数学。 关于工作城市：西安单位：菊厂 关于学习近期学习方向：Spring-cloud，区块链 关于座右铭 The Harder You Work, The Luckier You Will Be.  关">
+<meta name="twitter:title" content="HashMap的实现原理及源码分析（一）">
+<meta name="twitter:description" content="一. 简介&amp;emsp;&amp;emsp;哈希表（hash table）也叫散列表，是一种非常重要的数据结构，应用场景及其丰富，许多缓存技术（比如memcached）的核心其实就是在内存中维护一张大的哈希表，而HashMap的实现原理也常常出现在各类的面试题中，重要性可见一斑。&amp;emsp;&amp;emsp;本文会对java集合框架中的对应实现HashMap的实现原理进行讲解，然后会对JDK8的HashMap源码">
+<meta name="twitter:image" content="http://p657ki7rg.bkt.clouddn.com/hashmap.jpg">
   
   
     <link rel="icon" href="/favicon.ico">
@@ -105,30 +108,51 @@
     </div>
 </header>
       <div class="outer">
-        <section id="main" class="body-wrap"><article id="page-" class="article article-type-page" itemscope itemprop="blogPost">
+        <section id="main" class="body-wrap"><article id="post-hashmap" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-inner">
     
-    <div class="article-entry " itemprop="articleBody">
+      <header class="article-header">
+        
+  
+    <h1 class="post-title" itemprop="name">
+      HashMap的实现原理及源码分析（一）
+    </h1>
+    <div class="post-title-bar">
+      <ul>
+          
+              <li>
+                  <i class="fa fa-book"></i>
+                  
+                      <a href="/categories/HashMap/">HashMap</a>
+                  
+              </li>
+          
+        <li>
+          <i class="fa fa-calendar"></i>  2018-04-03
+        </li>
+        <li>
+          <i class="fa fa-eye"></i>
+          <span id="busuanzi_value_page_pv"></span>
+        </li>
+      </ul>
+    </div>
+  
+
+          
+      </header>
+    
+    <div class="article-entry post-content" itemprop="articleBody">
       
             
-            <h3 id="关于我"><a href="#关于我" class="headerlink" title="关于我"></a>关于我</h3><p>从事服务端软件开发，主要开发语言 <code>Java</code>，熟悉 <code>Spring</code>、<code>MyBatis</code> 等主流框架；对 <code>源码</code> 情有独钟。</p>
-<p>对<code>前端</code>、<code>数据分析</code>等技能有所了解。</p>
-<p>热爱<code>开源项目</code>、热爱<code>新技术</code>、热爱<code>新事物</code>、最喜欢<code>数学</code>。</p>
-<h3 id="关于工作"><a href="#关于工作" class="headerlink" title="关于工作"></a>关于工作</h3><p>城市：<code>西安</code><br>单位：<code>菊厂</code></p>
-<h3 id="关于学习"><a href="#关于学习" class="headerlink" title="关于学习"></a>关于学习</h3><p>近期学习方向：Spring-cloud，区块链</p>
-<h3 id="关于座右铭"><a href="#关于座右铭" class="headerlink" title="关于座右铭"></a>关于座右铭</h3><blockquote>
-<p>The Harder You Work, The Luckier You Will Be.</p>
-</blockquote>
-<h3 id="关于爱好"><a href="#关于爱好" class="headerlink" title="关于爱好"></a>关于爱好</h3><p>热爱<code>运动</code>，尤其喜爱<code>篮球</code>。</p>
-<h3 id="联系我"><a href="#联系我" class="headerlink" title="联系我"></a>联系我</h3><ul>
-<li>Home: <a href="https://chuancw.com">chuancw.com</a></li>
-<li>GitHub: <a href="https://github.com/chuancw" target="_blank" rel="noopener">chuancw</a></li>
-</ul>
+            <h3 id="一-简介"><a href="#一-简介" class="headerlink" title="一. 简介"></a>一. 简介</h3><p>&emsp;&emsp;<code>哈希表</code>（hash table）也叫散列表，是一种非常重要的<code>数据结构</code>，应用场景及其丰富，许多缓存技术（比如memcached）的核心其实就是在内存中维护一张大的哈希表，而HashMap的实现原理也常常出现在各类的面试题中，重要性可见一斑。<br>&emsp;&emsp;本文会对java集合框架中的对应实现HashMap的实现原理进行讲解，然后会对JDK8的HashMap源码进行分析。</p>
+<h3 id="二-正文"><a href="#二-正文" class="headerlink" title="二. 正文"></a>二. 正文</h3><h4 id="2-1-什么是哈希表"><a href="#2-1-什么是哈希表" class="headerlink" title="2.1 什么是哈希表"></a>2.1 什么是哈希表</h4><p>&emsp;&emsp;在讨论哈希表之前，我们先大概了解下其他数据结构在新增，查找等基础操作执行性能。<br>&emsp;&emsp;<code>数组</code>：采用一段连续的存储单元来存储数据。对于指定下标的查找，时间复杂度为O(1)；通过给定值进行查找，需要遍历数组，逐一比对给定关键字和数组元素，时间复杂度为O(n)，当然，对于有序数组，则可采用二分查找，插值查找，斐波那契查找等方式，可将查找复杂度提高为O(logn)；对于一般的插入删除操作，涉及到数组元素的移动，其平均复杂度也为O(n)<br>&emsp;&emsp;<code>线性链表</code>：对于链表的新增，删除等操作（在找到指定操作位置后），仅需处理结点间的引用即可，时间复杂度为O(1)，而查找操作需要遍历链表逐一进行比对，复杂度为O(n)<br>&emsp;&emsp;<code>二叉树</code>：对一棵相对平衡的有序二叉树，对其进行插入，查找，删除等操作，平均复杂度均为O(logn)。<br>&emsp;&emsp;<code>哈希表</code>：相比上述几种数据结构，在哈希表中进行添加，删除，查找等操作，性能十分之高，不考虑哈希冲突的情况下，仅需一次定位即可完成，时间复杂度为O(1)，接下来我们就来看看哈希表是如何实现达到惊艳的常数阶O(1)的。<br>&emsp;&emsp;我们知道，数据结构的物理存储结构只有两种：顺序存储结构和链式存储结构，在数组中根据下标查找某个元素，一次定位就可以达到，哈希表利用了这种特性，哈希表的主干就是数组。<br>&emsp;&emsp;比如我们要新增或查找某个元素，通过把当前元素的关键字，通过某个函数映射到数组中的某个位置，通过数组下标一次定位就可完成操作。这个函数一般称为哈希函数，这个函数的设计好坏会直接影响到哈希表的优劣。</p>
+<h4 id="2-2-哈希冲突"><a href="#2-2-哈希冲突" class="headerlink" title="2.2 哈希冲突"></a>2.2 哈希冲突</h4><p>&emsp;&emsp;然而万事无完美，如果两个不同的元素，通过哈希函数得出的实际存储地址相同怎么办？也就是说，当我们对某个元素进行哈希运算，得到一个存储地址，然后要进行插入的时候，发现已经被其他元素占用了，其实这就是所谓的哈希冲突，也叫哈希碰撞。前面我们提到过，哈希函数的设计至关重要，好的哈希函数会尽可能地保证 计算简单和散列地址分布均匀,但是，我们需要清楚的是，数组是一块连续的固定长度的内存空间，再好的哈希函数也不能保证得到的存储地址绝对不发生冲突。那么哈希冲突如何解决呢？<br>&emsp;&emsp;哈希冲突的解决方案有多种:开放定址法（发生冲突，继续寻找下一块未被占用的存储地址），再散列函数法，链地址法，而HashMap即是采用了链地址法，也就是<code>数组+链表</code>的方式，</p>
+<h4 id="2-3-HashMap的结构图"><a href="#2-3-HashMap的结构图" class="headerlink" title="2.3 HashMap的结构图"></a>2.3 HashMap的结构图</h4><p><img src="http://p657ki7rg.bkt.clouddn.com/hashmap.jpg" alt="结构图"></p>
 
             <div class="post-copyright">
     <div class="content">
-        <p>最后更新： 2018年04月02日 23:17</p>
-        <!-- <p>原始链接： <a class="post-url" href="/about/index.html" title="">http://chuancw.com/about/index.html</a></p>-->
+        <p>最后更新： 2018年04月02日 23:14</p>
+        <!-- <p>原始链接： <a class="post-url" href="/2018/04/03/hashmap/" title="HashMap的实现原理及源码分析（一）">http://chuancw.com/2018/04/03/hashmap/</a></p>-->
         <footer>
          <a href="http://chuancw.com">
                 <img src="/images/logo.png" alt="chuan">
@@ -185,7 +209,7 @@
     <div class="post-share-list" id="share-list">
         <ul class="share-icons">
           <li>
-            <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=http://chuancw.com/about/&title=chuancw&pic=http://chuancw.comimages/logo.png" data-title="微博">
+            <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=http://chuancw.com/2018/04/03/hashmap/&title=《HashMap的实现原理及源码分析（一）》 — chuancw&pic=http://p657ki7rg.bkt.clouddn.com/java.jpg" data-title="微博">
               <i class="fa fa-weibo"></i>
             </a>
           </li>
@@ -195,22 +219,22 @@
             </a>
           </li>
           <li>
-            <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=http://chuancw.com/about/&title=chuancw&source=技术博客" data-title="QQ">
+            <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=http://chuancw.com/2018/04/03/hashmap/&title=《HashMap的实现原理及源码分析（一）》 — chuancw&source=技术博客" data-title="QQ">
               <i class="fa fa-qq"></i>
             </a>
           </li>
           <li>
-            <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=http://chuancw.com/about/" data-title="Facebook">
+            <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=http://chuancw.com/2018/04/03/hashmap/" data-title="Facebook">
               <i class="fa fa-facebook"></i>
             </a>
           </li>
           <li>
-            <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=chuancw&url=http://chuancw.com/about/&via=http://chuancw.com" data-title="Twitter">
+            <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《HashMap的实现原理及源码分析（一）》 — chuancw&url=http://chuancw.com/2018/04/03/hashmap/&via=http://chuancw.com" data-title="Twitter">
               <i class="fa fa-twitter"></i>
             </a>
           </li>
           <li>
-            <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=http://chuancw.com/about/" data-title="Google+">
+            <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=http://chuancw.com/2018/04/03/hashmap/" data-title="Google+">
               <i class="fa fa-google-plus"></i>
             </a>
           </li>
@@ -220,7 +244,7 @@
 <div class="post-modal wx-share" id="wxShare">
     <a class="close" href="javascript:;" id="wxShare-close">×</a>
     <p>扫一扫，分享到微信</p>
-    <img src="//api.qrserver.com/v1/create-qr-code/?data=http://chuancw.com/about/" alt="微信分享二维码">
+    <img src="//api.qrserver.com/v1/create-qr-code/?data=http://chuancw.com/2018/04/03/hashmap/" alt="微信分享二维码">
 </div>
 
 <div class="mask"></div>
@@ -229,6 +253,15 @@
         <ul class="article-footer-menu">
             
             
+  <li class="article-footer-tags">
+    <i class="fa fa-tags"></i>
+      
+    <a href="/tags/Java/" class="color5">Java</a>
+      
+    <a href="/tags/HashMap/" class="color3">HashMap</a>
+      
+  </li>
+
         </ul>
         
     </footer>
@@ -238,15 +271,30 @@
 
     <aside class="post-toc-pos post-toc-top" id="post-toc">
         <nav class="post-toc-wrap">
-            <ol class="post-toc"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#关于我"><span class="post-toc-text">关于我</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#关于工作"><span class="post-toc-text">关于工作</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#关于学习"><span class="post-toc-text">关于学习</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#关于座右铭"><span class="post-toc-text">关于座右铭</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#关于爱好"><span class="post-toc-text">关于爱好</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#联系我"><span class="post-toc-text">联系我</span></a></li></ol>
+            <ol class="post-toc"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#一-简介"><span class="post-toc-text">一. 简介</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#二-正文"><span class="post-toc-text">二. 正文</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#2-1-什么是哈希表"><span class="post-toc-text">2.1 什么是哈希表</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#2-2-哈希冲突"><span class="post-toc-text">2.2 哈希冲突</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#2-3-HashMap的结构图"><span class="post-toc-text">2.3 HashMap的结构图</span></a></li></ol></li></ol>
         </nav>
     </aside>
     
 
+<nav id="article-nav">
+  
+    <a href="/2018/04/06/blockchain/" id="article-nav-newer" class="article-nav-link-wrap">
+
+      <span class="article-nav-title">
+        <i class="fa fa-hand-o-left" aria-hidden="true"></i>
+        
+          区块链入门教程
+        
+      </span>
+    </a>
+  
+  
+</nav>
+
 
 
     
-        <div id="SOHUCS" sid="" ></div>
+        <div id="SOHUCS" sid="hashmap" ></div>
 <script type="text/javascript">
     (function(){
         var appid = 'cytyKBySe';
