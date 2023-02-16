@@ -7,7 +7,7 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1/img/default.jpg">
 <meta property="article:published_time" content="2021-11-16T13:02:46.000Z">
-<meta property="article:modified_time" content="2023-02-16T13:51:37.954Z">
+<meta property="article:modified_time" content="2023-02-16T13:54:20.423Z">
 <meta property="article:author" content="泽川">
 <meta property="article:tag" content="PostgreSQL">
 <meta name="twitter:card" content="summary">
@@ -65,7 +65,7 @@
   isHome: false,
   isHighlightShrink: false,
   isToc: true,
-  postUpdate: '2023-02-16 21:51:37'
+  postUpdate: '2023-02-16 21:54:20'
 }</script><noscript><style type="text/css">
   #nav {
     opacity: 1
@@ -182,7 +182,7 @@
 <p>&emsp;</p>
 <h1 id="设置synchronous-commit参数"><a href="#设置synchronous-commit参数" class="headerlink" title="设置synchronous_commit参数"></a><strong>设置<code>synchronous_commit</code>参数</strong></h1><p>这个参数用来设置事务提交返回客户端之前，一个事务是否需要等待 <code>WAL</code> 记录被写入磁盘。合法的值是<code>&#123;local,remote_write,remote_apply,on,off&#125;</code></p>
 <ul>
-<li><p><code>Off</code>   级别最低</p>
+<li><p><code>off</code>   级别最低</p>
 <p>当数据库事务提交时不需要等待本地 <code>wal buffer</code> 写入 <code>wal</code> 日志，立刻向客户端返回成功</p>
 </li>
 </ul>
