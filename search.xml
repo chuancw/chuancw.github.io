@@ -4,6 +4,31 @@
   
     
     <entry>
+      <title>PostgreSQL集群主备复制方式</title>
+      <link href="/2021/11/16/PostgreSQL%E9%9B%86%E7%BE%A4%E4%B8%BB%E5%A4%87%E5%A4%8D%E5%88%B6%E6%96%B9%E5%BC%8F/"/>
+      <url>/2021/11/16/PostgreSQL%E9%9B%86%E7%BE%A4%E4%B8%BB%E5%A4%87%E5%A4%8D%E5%88%B6%E6%96%B9%E5%BC%8F/</url>
+      
+        <content type="html"><![CDATA[<p><strong>复制方式</strong></p><blockquote><p>一主一备是同步物理流复制</p><p><code>RO</code>是异步流复制</p></blockquote><p>当备机宕机后，如果此时主库有写操作，会写等待，此时管控会降为异步流复制模式，并重做备库</p><p><strong>设置<code>synchronous_commit</code>参数</strong></p><p>这个参数用来设置事务提交返回客户端之前，一个事务是否需要等待 <code>WAL</code> 记录被写入磁盘。合法的值是<code>&#123;local,remote_write,remote_apply,on,off&#125;</code></p><ul><li><code>Off</code>   级别最低</li></ul><p>​       当数据库事务提交时不需要等待本地 <code>wal buffer</code> 写入 <code>wal</code> 日志，立刻向客户端返回成功</p><ul><li><p><code>local</code></p><p>当事务提交时，写入本地磁盘即可</p></li><li><p><code>remote_write</code></p><p>表示流复制主库提交事务时，需等待备库接收主库发送的wal日志流并写入<strong>备节点操作系统缓存</strong>中，之后向客户端返回成功，这种情况下备库出现异常关闭时不会有已传送的wal日志丢失风险，但备机<code>OS</code>异常宕机就有已传送的<code>wal</code>丢失风险</p></li></ul><p>​       备机只需写入缓存，不需要落盘</p><ul><li><p><code>remote_apply</code>  级别最高</p><p>表示流复制主库提交事务时，需等待备库接收主库发送的wal流并写入wal文件，同时备库已经完成回放，之后才向客户端返回成功，简单的说<code>remote_apply</code> 表示本地<code>wal</code>已落盘，<strong>备库<code>wal</code>已落盘并且已经完成回放</strong>，这个设置保证了拥有两份持久化的<code>wal</code>，同时备库也已经完成了回放</p><p>备机要<code>wal</code>回放完</p></li><li><p><strong><code>on</code> (默认)</strong></p><p>1 为<code>on</code>且没有开启同步备库的时候,会当<code>wal</code>日志真正刷新到磁盘永久存储后才会返回客户端事务已提交成功,</p><p>2 当为<code>on</code>且开启了同步备库的时候(设置了<code>synchronous_standby_names</code>),必须要等事务日志刷新到本地磁盘,并且还要等远程<strong>备库也提交到磁盘</strong>才能返回客户端已经提交.</p><p>主备都要<code>wal</code>落盘</p></li></ul>]]></content>
+      
+      
+      <categories>
+          
+          <category> 数据库 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> PostgreSQL </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>什么是接口幂等性</title>
       <link href="/2021/10/17/%E4%BB%80%E4%B9%88%E6%98%AF%E6%8E%A5%E5%8F%A3%E5%B9%82%E7%AD%89%E6%80%A7/"/>
       <url>/2021/10/17/%E4%BB%80%E4%B9%88%E6%98%AF%E6%8E%A5%E5%8F%A3%E5%B9%82%E7%AD%89%E6%80%A7/</url>

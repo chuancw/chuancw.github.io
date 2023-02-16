@@ -1,0 +1,208 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1"><title>PostgreSQL集群主备复制方式 | 泽川的Blog</title><meta name="keywords" content="PostgreSQL"><meta name="author" content="泽川"><meta name="copyright" content="泽川"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="复制方式  一主一备是同步物理流复制 RO是异步流复制  当备机宕机后，如果此时主库有写操作，会写等待，此时管控会降为异步流复制模式，并重做备库 设置synchronous_commit参数 这个参数用来设置事务提交返回客户端之前，一个事务是否需要等待 WAL 记录被写入磁盘。合法的值是&amp;#123;local,remote_write,remote_apply,on,off&amp;#125;  Off">
+<meta property="og:type" content="article">
+<meta property="og:title" content="PostgreSQL集群主备复制方式">
+<meta property="og:url" content="http://chuancw.github.io/2021/11/16/PostgreSQL%E9%9B%86%E7%BE%A4%E4%B8%BB%E5%A4%87%E5%A4%8D%E5%88%B6%E6%96%B9%E5%BC%8F/index.html">
+<meta property="og:site_name" content="泽川的Blog">
+<meta property="og:description" content="复制方式  一主一备是同步物理流复制 RO是异步流复制  当备机宕机后，如果此时主库有写操作，会写等待，此时管控会降为异步流复制模式，并重做备库 设置synchronous_commit参数 这个参数用来设置事务提交返回客户端之前，一个事务是否需要等待 WAL 记录被写入磁盘。合法的值是&amp;#123;local,remote_write,remote_apply,on,off&amp;#125;  Off">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1/img/default.jpg">
+<meta property="article:published_time" content="2021-11-16T13:02:46.000Z">
+<meta property="article:modified_time" content="2023-02-16T13:05:21.620Z">
+<meta property="article:author" content="泽川">
+<meta property="article:tag" content="PostgreSQL">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1/img/default.jpg"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="http://chuancw.github.io/2021/11/16/PostgreSQL%E9%9B%86%E7%BE%A4%E4%B8%BB%E5%A4%87%E5%A4%8D%E5%88%B6%E6%96%B9%E5%BC%8F/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//hm.baidu.com"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/node-snackbar/dist/snackbar.min.css" media="print" onload="this.media='all'"><script>var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?986acf41ab5cfe693377c7d38c13fbe0";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"search.xml","languages":{"hits_empty":"找不到您查询的内容：${query}"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'mediumZoom',
+  Snackbar: {"chs_to_cht":"你已切换为繁体","cht_to_chs":"你已切换为简体","day_to_night":"你已切换为深色模式","night_to_day":"你已切换为浅色模式","bgLight":"#49b1f5","bgDark":"#2d3035","position":"bottom-left"},
+  source: {
+    jQuery: 'https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js',
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/js/jquery.justifiedGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/css/justifiedGallery.min.css'
+    },
+    fancybox: {
+      js: 'https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isanchor: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'PostgreSQL集群主备复制方式',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: false,
+  postUpdate: '2023-02-16 21:05:21'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          const isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches
+          const isLightMode = window.matchMedia('(prefers-color-scheme: light)').matches
+          const isNotSpecified = window.matchMedia('(prefers-color-scheme: no-preference)').matches
+          const hasNoSupport = !isDarkMode && !isLightMode && !isNotSpecified
+
+          if (t === undefined) {
+            if (isLightMode) activateLightMode()
+            else if (isDarkMode) activateDarkMode()
+            else if (isNotSpecified || hasNoSupport) {
+              const now = new Date()
+              const hour = now.getHours()
+              const isNight = hour <= 6 || hour >= 18
+              isNight ? activateDarkMode() : activateLightMode()
+            }
+            window.matchMedia('(prefers-color-scheme: dark)').addListener(function (e) {
+              if (saveToLocal.get('theme') === undefined) {
+                e.matches ? activateDarkMode() : activateLightMode()
+              }
+            })
+          } else if (t === 'light') activateLightMode()
+          else activateDarkMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if (GLOBAL_CONFIG_SITE.isHome && /iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 5.4.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/images/head.jpeg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data"><div class="data-item is-center"><div class="data-item-link"><a href="/archives/"><div class="headline">文章</div><div class="length-num">6</div></a></div></div><div class="data-item is-center"><div class="data-item-link"><a href="/tags/"><div class="headline">标签</div><div class="length-num">9</div></a></div></div><div class="data-item is-center"><div class="data-item-link"><a href="/categories/"><div class="headline">分类</div><div class="length-num">3</div></a></div></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于我</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://cdn.jsdelivr.net/npm/butterfly-extsrc@1/img/default.jpg')"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">泽川的Blog</a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于我</span></a></div></div><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">PostgreSQL集群主备复制方式</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="fa-fw post-meta-icon far fa-calendar-alt"></i><span class="post-meta-label">发表于</span><time datetime="2021-11-16T13:02:46.000Z" title="undefined 2021-11-16 21:02:46">2021-11-16</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/">数据库</a></span></div><div class="meta-secondline"></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><p><strong>复制方式</strong></p>
+<blockquote>
+<p>一主一备是同步物理流复制</p>
+<p><code>RO</code>是异步流复制</p>
+</blockquote>
+<p>当备机宕机后，如果此时主库有写操作，会写等待，此时管控会降为异步流复制模式，并重做备库</p>
+<p><strong>设置<code>synchronous_commit</code>参数</strong></p>
+<p>这个参数用来设置事务提交返回客户端之前，一个事务是否需要等待 <code>WAL</code> 记录被写入磁盘。合法的值是<code>&#123;local,remote_write,remote_apply,on,off&#125;</code></p>
+<ul>
+<li><code>Off</code>   级别最低</li>
+</ul>
+<p>​       当数据库事务提交时不需要等待本地 <code>wal buffer</code> 写入 <code>wal</code> 日志，立刻向客户端返回成功</p>
+<ul>
+<li><p><code>local</code></p>
+<p>当事务提交时，写入本地磁盘即可</p>
+</li>
+<li><p><code>remote_write</code></p>
+<p>表示流复制主库提交事务时，需等待备库接收主库发送的wal日志流并写入<strong>备节点操作系统缓存</strong>中，之后向客户端返回成功，这种情况下备库出现异常关闭时不会有已传送的wal日志丢失风险，但备机<code>OS</code>异常宕机就有已传送的<code>wal</code>丢失风险</p>
+</li>
+</ul>
+<p>​       备机只需写入缓存，不需要落盘</p>
+<ul>
+<li><p><code>remote_apply</code>  级别最高</p>
+<p>表示流复制主库提交事务时，需等待备库接收主库发送的wal流并写入wal文件，同时备库已经完成回放，之后才向客户端返回成功，简单的说<code>remote_apply</code> 表示本地<code>wal</code>已落盘，<strong>备库<code>wal</code>已落盘并且已经完成回放</strong>，这个设置保证了拥有两份持久化的<code>wal</code>，同时备库也已经完成了回放</p>
+<p>备机要<code>wal</code>回放完</p>
+</li>
+<li><p><strong><code>on</code> (默认)</strong></p>
+<p>1 为<code>on</code>且没有开启同步备库的时候,会当<code>wal</code>日志真正刷新到磁盘永久存储后才会返回客户端事务已提交成功,</p>
+<p>2 当为<code>on</code>且开启了同步备库的时候(设置了<code>synchronous_standby_names</code>),必须要等事务日志刷新到本地磁盘,并且还要等远程<strong>备库也提交到磁盘</strong>才能返回客户端已经提交.</p>
+<p>主备都要<code>wal</code>落盘</p>
+</li>
+</ul>
+</article><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/PostgreSQL/">PostgreSQL</a></div><div class="post_share"><div class="social-share" data-image="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1/img/default.jpg" data-sites="weibo,qq,wechat"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-full"><a href="/2021/10/17/%E4%BB%80%E4%B9%88%E6%98%AF%E6%8E%A5%E5%8F%A3%E5%B9%82%E7%AD%89%E6%80%A7/"><img class="prev-cover" src="/images/321.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">什么是接口幂等性</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/2021/07/14/PostgreSQL%E4%B8%BB%E4%BB%8E%E6%90%AD%E5%BB%BA/" title="PostgreSQL主从搭建"><img class="cover" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1/img/default.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-07-14</div><div class="title">PostgreSQL主从搭建</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/images/head.jpeg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">泽川</div><div class="author-info__description">积跬步，至千里</div></div><div class="card-info-data"><div class="card-info-data-item is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">6</div></a></div><div class="card-info-data-item is-center"><a href="/tags/"><div class="headline">标签</div><div class="length-num">9</div></a></div><div class="card-info-data-item is-center"><a href="/categories/"><div class="headline">分类</div><div class="length-num">3</div></a></div></div><a class="button--animated" id="card-info-btn" target="_blank" rel="noopener" href="https://github.com"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/" target="_blank" title="Github"><i class="fab fa-github"></i></a><a class="social-icon" href="mailto:108ccwang@gmail.com" target="_blank" title="Email"><i class="fas fa-envelope"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn card-announcement-animation"></i><span>公告</span></div><div class="announcement_content">这是我的技术博客</div></div><div class="sticky_layout"><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2021/11/16/PostgreSQL%E9%9B%86%E7%BE%A4%E4%B8%BB%E5%A4%87%E5%A4%8D%E5%88%B6%E6%96%B9%E5%BC%8F/" title="PostgreSQL集群主备复制方式"><img src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1/img/default.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="PostgreSQL集群主备复制方式"/></a><div class="content"><a class="title" href="/2021/11/16/PostgreSQL%E9%9B%86%E7%BE%A4%E4%B8%BB%E5%A4%87%E5%A4%8D%E5%88%B6%E6%96%B9%E5%BC%8F/" title="PostgreSQL集群主备复制方式">PostgreSQL集群主备复制方式</a><time datetime="2021-11-16T13:02:46.000Z" title="发表于 2021-11-16 21:02:46">2021-11-16</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2021/10/17/%E4%BB%80%E4%B9%88%E6%98%AF%E6%8E%A5%E5%8F%A3%E5%B9%82%E7%AD%89%E6%80%A7/" title="什么是接口幂等性"><img src="/images/321.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="什么是接口幂等性"/></a><div class="content"><a class="title" href="/2021/10/17/%E4%BB%80%E4%B9%88%E6%98%AF%E6%8E%A5%E5%8F%A3%E5%B9%82%E7%AD%89%E6%80%A7/" title="什么是接口幂等性">什么是接口幂等性</a><time datetime="2021-10-16T16:00:00.000Z" title="发表于 2021-10-17 00:00:00">2021-10-17</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2021/10/10/%E6%B5%85%E8%B0%88%E5%9B%BD%E4%BA%A7%E6%95%B0%E6%8D%AE%E5%BA%93%E5%9C%A8%E9%87%91%E8%9E%8D%E7%95%8C%E7%9A%84%E5%BA%94%E7%94%A8(%E4%B8%80)/" title="浅谈国产数据库在金融界的应用-概念篇"><img src="/images/132.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="浅谈国产数据库在金融界的应用-概念篇"/></a><div class="content"><a class="title" href="/2021/10/10/%E6%B5%85%E8%B0%88%E5%9B%BD%E4%BA%A7%E6%95%B0%E6%8D%AE%E5%BA%93%E5%9C%A8%E9%87%91%E8%9E%8D%E7%95%8C%E7%9A%84%E5%BA%94%E7%94%A8(%E4%B8%80)/" title="浅谈国产数据库在金融界的应用-概念篇">浅谈国产数据库在金融界的应用-概念篇</a><time datetime="2021-10-09T16:00:00.000Z" title="发表于 2021-10-10 00:00:00">2021-10-10</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2021/10/05/%E5%A6%82%E4%BD%95%E5%87%8F%E5%B0%91%E4%BB%A3%E7%A0%81%E9%87%8C%E7%9A%84if/" title="如何减少代码里的if/else"><img src="/images/23.JPG" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="如何减少代码里的if/else"/></a><div class="content"><a class="title" href="/2021/10/05/%E5%A6%82%E4%BD%95%E5%87%8F%E5%B0%91%E4%BB%A3%E7%A0%81%E9%87%8C%E7%9A%84if/" title="如何减少代码里的if/else">如何减少代码里的if/else</a><time datetime="2021-10-04T16:00:00.000Z" title="发表于 2021-10-05 00:00:00">2021-10-05</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2021/07/14/PostgreSQL%E4%B8%BB%E4%BB%8E%E6%90%AD%E5%BB%BA/" title="PostgreSQL主从搭建"><img src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1/img/default.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="PostgreSQL主从搭建"/></a><div class="content"><a class="title" href="/2021/07/14/PostgreSQL%E4%B8%BB%E4%BB%8E%E6%90%AD%E5%BB%BA/" title="PostgreSQL主从搭建">PostgreSQL主从搭建</a><time datetime="2021-07-13T16:49:50.000Z" title="发表于 2021-07-14 00:49:50">2021-07-14</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url('https://cdn.jsdelivr.net/npm/butterfly-extsrc@1/img/default.jpg')"><div id="footer-wrap"><div class="copyright">&copy;2021 - 2023 By 泽川</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></div><div id="local-search"><div class="search-dialog"><div class="search-dialog__title" id="local-search-title">本地搜索</div><div id="local-input-panel"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div></div><hr/><div id="local-search-results"></div><span class="search-close-button"><i class="fas fa-times"></i></span></div><div id="search-mask"></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/medium-zoom/dist/medium-zoom.min.js"></script><script src="https://cdn.jsdelivr.net/npm/node-snackbar/dist/snackbar.min.js"></script><script src="/js/search/local-search.js"></script><div class="js-pjax"></div><script defer="defer" id="fluttering_ribbon" mobile="true" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1/dist/canvas-fluttering-ribbon.min.js"></script><script id="click-heart" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1/dist/click-heart.min.js" async="async" mobile="true"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
