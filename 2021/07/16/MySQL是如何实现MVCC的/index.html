@@ -1,13 +1,13 @@
-<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1"><title>MySQL是如何实现MVCC的 | 泽川的Blog</title><meta name="keywords" content="MySQL"><meta name="author" content="泽川"><meta name="copyright" content="泽川"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="原理基于 隐藏字段 + undolog + readView来实现MVCC的  undlog ： 修改数据时，将该记录写入到版本链中，undolog， 每次放在头部。  行隐藏字段：   ​        - db_trx_id：事务ID，全局唯一 ​        - roll_pointer 版本链指针     ReadView中的统计值：  m_ids  当前活跃的事务集合（所有未提交的事务">
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1"><title>MySQL是如何实现MVCC的 | 泽川的Blog</title><meta name="keywords" content="MySQL"><meta name="author" content="泽川"><meta name="copyright" content="泽川"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="原理基于 (隐藏字段 + undolog + readView)来实现MVCC的  undolog ： 修改数据时，将该记录写入到版本链中，undolog， 每次放在头部。 &amp;emsp;  行隐藏字段：  db_trx_id：事务ID，全局唯一  roll_pointer 版本链指针    ReadView中的统计值：  m_ids  当前活跃的事务集合（所有未提交的事务） min_trx_id">
 <meta property="og:type" content="article">
 <meta property="og:title" content="MySQL是如何实现MVCC的">
 <meta property="og:url" content="http://chuancw.github.io/2021/07/16/MySQL%E6%98%AF%E5%A6%82%E4%BD%95%E5%AE%9E%E7%8E%B0MVCC%E7%9A%84/index.html">
 <meta property="og:site_name" content="泽川的Blog">
-<meta property="og:description" content="原理基于 隐藏字段 + undolog + readView来实现MVCC的  undlog ： 修改数据时，将该记录写入到版本链中，undolog， 每次放在头部。  行隐藏字段：   ​        - db_trx_id：事务ID，全局唯一 ​        - roll_pointer 版本链指针     ReadView中的统计值：  m_ids  当前活跃的事务集合（所有未提交的事务">
+<meta property="og:description" content="原理基于 (隐藏字段 + undolog + readView)来实现MVCC的  undolog ： 修改数据时，将该记录写入到版本链中，undolog， 每次放在头部。 &amp;emsp;  行隐藏字段：  db_trx_id：事务ID，全局唯一  roll_pointer 版本链指针    ReadView中的统计值：  m_ids  当前活跃的事务集合（所有未提交的事务） min_trx_id">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://chuancw.github.io/images/mysql.png">
 <meta property="article:published_time" content="2021-07-16T13:39:23.000Z">
-<meta property="article:modified_time" content="2023-02-17T20:25:06.748Z">
+<meta property="article:modified_time" content="2023-02-17T20:34:24.958Z">
 <meta property="article:author" content="泽川">
 <meta property="article:tag" content="MySQL">
 <meta name="twitter:card" content="summary">
@@ -65,7 +65,7 @@
   isHome: false,
   isHighlightShrink: false,
   isToc: true,
-  postUpdate: '2023-02-18 04:25:06'
+  postUpdate: '2023-02-18 04:34:24'
 }</script><noscript><style type="text/css">
   #nav {
     opacity: 1
@@ -173,20 +173,18 @@
       }
     }
     detectApple()
-    })(window)</script><meta name="generator" content="Hexo 5.4.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/images/head.jpeg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data"><div class="data-item is-center"><div class="data-item-link"><a href="/archives/"><div class="headline">文章</div><div class="length-num">8</div></a></div></div><div class="data-item is-center"><div class="data-item-link"><a href="/tags/"><div class="headline">标签</div><div class="length-num">9</div></a></div></div><div class="data-item is-center"><div class="data-item-link"><a href="/categories/"><div class="headline">分类</div><div class="length-num">3</div></a></div></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于我</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="not-top-img" id="page-header"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">泽川的Blog</a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于我</span></a></div></div><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav></header><main class="layout" id="content-inner"><div id="post"><div id="post-info"><h1 class="post-title">MySQL是如何实现MVCC的</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="fa-fw post-meta-icon far fa-calendar-alt"></i><span class="post-meta-label">发表于</span><time datetime="2021-07-16T13:39:23.000Z" title="undefined 2021-07-16 21:39:23">2021-07-16</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/">数据库</a></span></div><div class="meta-secondline"></div></div></div><article class="post-content" id="article-container"><h2 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h2><p>基于 隐藏字段 + <code>undolog</code> + <code>readView</code>来实现<code>MVCC</code>的</p>
+    })(window)</script><meta name="generator" content="Hexo 5.4.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/images/head.jpeg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data"><div class="data-item is-center"><div class="data-item-link"><a href="/archives/"><div class="headline">文章</div><div class="length-num">8</div></a></div></div><div class="data-item is-center"><div class="data-item-link"><a href="/tags/"><div class="headline">标签</div><div class="length-num">9</div></a></div></div><div class="data-item is-center"><div class="data-item-link"><a href="/categories/"><div class="headline">分类</div><div class="length-num">3</div></a></div></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于我</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="not-top-img" id="page-header"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">泽川的Blog</a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于我</span></a></div></div><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav></header><main class="layout" id="content-inner"><div id="post"><div id="post-info"><h1 class="post-title">MySQL是如何实现MVCC的</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="fa-fw post-meta-icon far fa-calendar-alt"></i><span class="post-meta-label">发表于</span><time datetime="2021-07-16T13:39:23.000Z" title="undefined 2021-07-16 21:39:23">2021-07-16</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/">数据库</a></span></div><div class="meta-secondline"></div></div></div><article class="post-content" id="article-container"><h2 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h2><p>基于 (隐藏字段 + <code>undolog</code> + <code>readView</code>)来实现<code>MVCC</code>的</p>
 <ul>
-<li><p><code>undlog</code> ：</p>
+<li><p><code>undolog</code> ：</p>
 <p>修改数据时，将该记录写入到版本链中，<code>undolog</code>， 每次放在头部。</p>
+<p>&emsp;</p>
 </li>
 <li><p>行隐藏字段：</p>
+<p> <code>db_trx_id</code>：事务ID，全局唯一</p>
+<p> <code>roll_pointer</code> 版本链指针</p>
 </li>
 </ul>
-<p>​        - <code>db_trx_id</code>：事务ID，全局唯一</p>
-<p>​        - <code>roll_pointer</code> 版本链指针</p>
-<img src="/Users/lizechuan/Library/Application Support/typora-user-images/image-20230201003614914.png" alt="image-20230201003614914" style="zoom:50%;" />
-
-
-
+<p><img src="https://user-images.githubusercontent.com/19164993/219787502-1fdd650c-96c2-4128-b882-0e0652743133.png" alt="mvcc"></p>
 <p><code>ReadView</code>中的统计值：</p>
 <ul>
 <li><code>m_ids</code>  当前活跃的事务集合（所有未提交的事务）</li>
