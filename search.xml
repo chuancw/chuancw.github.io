@@ -133,6 +133,33 @@
     
     
     <entry>
+      <title>腾讯云PG实例创建流程</title>
+      <link href="/2021/07/11/%E8%85%BE%E8%AE%AF%E4%BA%91PG%E5%AE%9E%E4%BE%8B%E5%88%9B%E5%BB%BA%E8%BF%87%E7%A8%8B/"/>
+      <url>/2021/07/11/%E8%85%BE%E8%AE%AF%E4%BA%91PG%E5%AE%9E%E4%BE%8B%E5%88%9B%E5%BB%BA%E8%BF%87%E7%A8%8B/</url>
+      
+        <content type="html"><![CDATA[<p><img src="https://user-images.githubusercontent.com/19164993/219874781-19ca5d30-b33d-4a76-8cae-844215a07016.jpeg" alt="pg-instance-new-init"></p>]]></content>
+      
+      
+      <categories>
+          
+          <category> 数据库 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> PostgreSQL </tag>
+            
+            <tag> 腾讯云 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>基于Stolon快速构建PostgreSQL集群</title>
       <link href="/2021/06/21/%E5%9F%BA%E4%BA%8EStolon%E5%BF%AB%E9%80%9F%E6%9E%84%E5%BB%BAPostgreSQL%E9%9B%86%E7%BE%A4/"/>
       <url>/2021/06/21/%E5%9F%BA%E4%BA%8EStolon%E5%BF%AB%E9%80%9F%E6%9E%84%E5%BB%BAPostgreSQL%E9%9B%86%E7%BE%A4/</url>
