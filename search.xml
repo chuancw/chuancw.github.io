@@ -4,6 +4,35 @@
   
     
     <entry>
+      <title>Stolon-sentinel的Leader选举过程</title>
+      <link href="/2022/04/06/Stolon-Sentinel%E7%9A%84Leader%E9%80%89%E4%B8%BE%E8%BF%87%E7%A8%8B/"/>
+      <url>/2022/04/06/Stolon-Sentinel%E7%9A%84Leader%E9%80%89%E4%B8%BE%E8%BF%87%E7%A8%8B/</url>
+      
+        <content type="html"><![CDATA[<h2 id="代码结构"><a href="#代码结构" class="headerlink" title="代码结构"></a>代码结构</h2>]]></content>
+      
+      
+      <categories>
+          
+          <category> 分布式 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> 分布式锁 </tag>
+            
+            <tag> Golang </tag>
+            
+            <tag> etcd </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>借助etcd进行分布式服务leader选举（一）</title>
       <link href="/2022/03/28/%E5%80%9F%E5%8A%A9etcd%E8%BF%9B%E8%A1%8C%E5%88%86%E5%B8%83%E5%BC%8F%E6%9C%8D%E5%8A%A1leader%E9%80%89%E4%B8%BE/"/>
       <url>/2022/03/28/%E5%80%9F%E5%8A%A9etcd%E8%BF%9B%E8%A1%8C%E5%88%86%E5%B8%83%E5%BC%8F%E6%9C%8D%E5%8A%A1leader%E9%80%89%E4%B8%BE/</url>
